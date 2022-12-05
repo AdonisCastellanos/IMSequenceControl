@@ -44,7 +44,13 @@ public class SendNotificationsEmailOfSequenceControl  extends SvrProcess{
 
 	@Override
 	protected String doIt() throws Exception {
-
+		
+		if(m_Email == null && m_EmailDomain == null && m_Password==null){
+			m_Email = "soporte";
+			m_EmailDomain= "comercialwindsor.cl";
+			m_Password = "Cw9121100";			
+		}
+		
 		if(m_Email == null || m_EmailDomain == null || m_Password==null)
 			return "Debe proporcionar un correo y una clave";
 		
