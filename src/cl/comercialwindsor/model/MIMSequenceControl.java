@@ -130,11 +130,11 @@ public class MIMSequenceControl extends X_IM_SequenceControl {
 		
 	}
 	
-	public void UpdateDocumentTypeSequence() {
+	public void UpdateDocumentTypeSequence(boolean initialRangeChanged) {
 		ValidateDocumentTypeSequence();
 		
 		MSequence docSequence = (MSequence) MDocType.get(getCtx(), getC_DocType_ID()).getDocNoSequence();		
-		setPreviousSequence(Integer.toString(docSequence.getCurrentNext()));
+		
 		
 		
 		if(getInitialRange()>=getFinalRange())
@@ -143,10 +143,14 @@ public class MIMSequenceControl extends X_IM_SequenceControl {
 		ValidateInitialSequence();
 		ValidateFinalSequence();
 		
-		docSequence.setCurrentNext(getInitialRange());
-		docSequence.saveEx(get_TrxName());		
+		if(initialRangeChanged){
+			setPreviousSequence(Integer.toString(docSequence.getCurrentNext()));
+			docSequence.setCurrentNext(getInitialRange());
+			docSequence.saveEx(get_TrxName());	
+		}	
 		
 		setNotificationMessage(NOTIFICATIONMESSAGE_None);
+		set_ValueOfColumn("CriticalNotificationNo", 1000);	
 	}
 	
 	
@@ -229,15 +233,14 @@ public class MIMSequenceControl extends X_IM_SequenceControl {
 	
 	protected boolean beforeSave (boolean newRecord) {
 		if(newRecord){
-			set_ValueOfColumn("CriticalNotificationNo", 1000);
-				
+			set_ValueOfColumn("CriticalNotificationNo", 1000);				
 		}
 		
 		if(newRecord && is_ValueChanged(COLUMNNAME_C_DocType_ID))
 			ValidateDocumentTypeSequence();
 		
 		if(is_ValueChanged(COLUMNNAME_InitialRange)|| is_ValueChanged(COLUMNNAME_FinalRange)) 
-			UpdateDocumentTypeSequence();
+			UpdateDocumentTypeSequence(is_ValueChanged(COLUMNNAME_InitialRange));
 		
 		if (!Util.isEmpty(getEMail()) && (newRecord || is_ValueChanged("EMail"))) {
 		}
